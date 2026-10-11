@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduShare | Create Account</title>
+    <style>
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image: url('bg.jpg');
+             background-size: cover;
+            background-position: center;
+            filter: blur(8px);
+            z-index: -1;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+        }
+
+        .card {
+            width: 450px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 40px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        h2 { 
+            text-align: center; 
+            color: black;
+             text-shadow: 1px 1px 2px white; 
+            margin-bottom: 25px; 
+            letter-spacing: 1px; 
+        }
+
+        .form-group { 
+            margin-bottom: 15px; 
+        }
+
+        input, 
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            margin-top: 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            box-sizing: border-box;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus, 
+        select:focus {
+            border-color: #6366f1;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        input::placeholder { 
+            color: #ccc; 
+        }
+
+        select option { 
+            background: #333; 
+            color: white; 
+        }
+
+        .otp-container {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            margin-top: 5px;
+        }
+
+        .btn-otp {
+            width: 40%;
+            height: 42px;
+            background: #a855f7;
+            border: none;
+            border-radius: 12px;
+            color:black;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .btn-otp:hover {
+            background: #4338ca;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            margin-top: 25px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            color:black;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn-submit:hover { 
+            transform: scale(1.02); 
+            opacity: 0.9; 
+        }
+
+        .link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .link a { 
+            color: #a855f7; 
+            text-decoration: none; 
+            font-weight: bold; 
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Create Account</h2>
+
+    <input id="name" type="text" placeholder="Full Name">
+    <input id="email" type="email" placeholder="College Email">
+    <input id="password" type="password" placeholder="Password">
+
+    <div style="display: flex; gap: 10px;">
+        <select id="role" onchange="toggleSemester()">
+            <option value="student">Student</option>
+            <option value="teacher">Teacher</option>
+            <option value="admin">Admin</option>
+        </select>
+        <input id="department" type="text" placeholder="Dept (e.g. CSE)">
+    </div>
+
+    <input id="semester" type="number" placeholder="Current Semester (1-8)" min="1" max="8">
+
+    <div class="otp-container">
+        <input id="otp" type="text" placeholder="Enter OTP">
+        <button class="btn-otp" onclick="sendOTP()">Get OTP</button>
+    </div>
+
+    <button class="btn-submit" onclick="verifyAndRegister()">Join EduShare</button>
+
+    <div class="link">
+        Already a member? <a href="login.html">Sign in</a>
+    </div>
+</div>
+
+<script>
+    const API_URL = "http://127.0.0.1:5000";
+
+    // Hides semester input if role is not student
+    function toggleSemester() {
+        const role = document.getElementById("role").value;
+        const semInput = document.getElementById("semester");
+        if (role !== "student") {
+            semInput.style.display = "none";
+            semInput.value = "0"; // Default for non-students
+        } else {
+            semInput.style.display = "block";
+            semInput.value = "";
+        }
+    }
+
+    async function sendOTP() {
+        const email = document.getElementById("email").value;
+        if(!email) { 
+            alert("Please enter an email first."); 
+            return; 
+        }
+
+        try {
+            const res = await fetch(`${API_URL}/send-otp`, {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ email })
+            });
+            const data = await res.json();
+            alert(data.message);
+        } catch (err) {
+            alert("Server error. Is the backend running?");
+        }
+    }
+
+    async function verifyAndRegister() {
+        const payload = {
+            name: document.getElementById("name").value,
+            email: document.getElementById("email").value,
+            password: document.getElementById("password").value,
+            otp: document.getElementById("otp").value,
+            role: document.getElementById("role").value,
+            department: document.getElementById("department").value,
+            semester: document.getElementById("semester").value
+        };
+
+        if(Object.values(payload).some(val => !val)) {
+            alert("Please fill in all fields including OTP.");
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_URL}/verify-otp`, {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+
+            if (data.status === "verified") {
+                alert("Success! Account created.");
+                window.location.href = "login.html";
+            } else {
+                alert("Error: " + data.message);
+            }
+        } catch (err) {
+            alert("Connection failed.");
+            console.error(err);
+        }
+    }
+</script>
+
+</body>
+</html>

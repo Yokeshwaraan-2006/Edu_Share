@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduShare | Upload Resource</title>
+
+<style>
+    /* --- THEME VARIABLES --- */
+    :root {
+        --primary: #4f46e5;
+        --bg: #f5f7fb;
+        --card-bg: #ffffff;
+        --text: #1f2937;
+        --text-light: #6b7280;
+        --border: #e5e7eb;
+    }
+
+    body.dark-theme {
+        --bg: #0f172a;
+        --card-bg: #1e293b;
+        --text: #f8fafc;
+        --text-light: #94a3b8;
+        --border: #334155;
+    }
+
+    *{
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
+        font-family: "Segoe UI", sans-serif;
+    }
+
+    body{
+        background: var(--bg);
+        color: var(--text);
+        transition: background 0.3s, color 0.3s;
+    }
+
+    .dashboard{
+        display:flex;
+        min-height:100vh;
+    }
+
+    /* Sidebar - Matching Dashboard */
+    .sidebar{
+        width:240px;
+        background: var(--primary);
+        color:white;
+        padding:20px;
+        flex-shrink: 0;
+    }
+
+    .logo{
+        font-size:22px;
+        font-weight:bold;
+        margin-bottom:30px;
+    }
+
+    .sidebar a{
+        display:block;
+        padding:12px;
+        margin-bottom:8px;
+        border-radius:8px;
+        text-decoration: none;
+        color: white;
+    }
+
+    .sidebar a:hover,
+    .sidebar .active{
+        background:rgba(255,255,255,0.2);
+    }
+
+    /* Main Content */
+    .main{
+        flex:1;
+        padding:30px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    header {
+        width: 100%;
+        max-width: 500px;
+        margin-bottom: 25px;
+    }
+
+    header h1{ margin-bottom: 6px; }
+    header p{ color: var(--text-light); }
+
+    /* Upload Card */
+    .upload-card {
+        background: var(--card-bg);
+        padding: 35px;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        width: 100%;
+        max-width: 500px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: var(--text);
+    }
+
+    input, textarea, select {
+        width: 100%;
+        padding: 12px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: var(--bg);
+        color: var(--text);
+        font-size: 14px;
+        outline: none;
+        transition: border 0.3s;
+    }
+
+    input:focus, textarea:focus {
+        border-color: var(--primary);
+    }
+
+    textarea {
+        height: 100px;
+        resize: none;
+    }
+
+    /* File Input Styling */
+    input[type="file"] {
+        background: var(--card-bg);
+        padding: 10px;
+        border: 2px dashed var(--border);
+        cursor: pointer;
+    }
+
+    button {
+        width: 100%;
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 14px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 16px;
+        margin-top: 10px;
+        transition: transform 0.2s, opacity 0.2s;
+    }
+
+    button:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+    }
+
+    @media(max-width:768px){
+        .sidebar { display: none; }
+    }
+</style>
+
+<script>
+    // Immediate Theme Check
+    (function() {
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
+    })();
+</script>
+</head>
+<body>
+
+<div class="dashboard">
+    <nav class="sidebar">
+        <div class="logo">EduShare</div>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="browse.html">Browse Resources</a>
+        <a href="upload.html" class="active">Upload</a>
+        <a href="leaderboard.html">Leaderboard</a>
+        <a href="profile.html">Profile</a>
+    </nav>
+
+    <main class="main">
+        <header>
+            <h1>Share Knowledge</h1>
+            <p>Upload your notes or question papers to help others.</p>
+        </header>
+
+        <div class="upload-card">
+            <div class="form-group">
+                <label>Resource Title</label>
+                <input type="text" id="title" placeholder="e.g., Data Structures Unit 1 Notes">
+            </div>
+
+            <div class="form-group">
+                <label>Course Name</label>
+                <input type="text" id="course" placeholder="e.g., CS8391">
+            </div>
+
+            <div class="form-group">
+                <label>Semester</label>
+                <select id="sem">
+                    <option value="1">Semester 1</option>
+                    <option value="2">Semester 2</option>
+                    <option value="3">Semester 3</option>
+                    <option value="4">Semester 4</option>
+                    <option value="5">Semester 5</option>
+                    <option value="6">Semester 6</option>
+                    <option value="7">Semester 7</option>
+                    <option value="8">Semester 8</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Short Description</label>
+                <textarea id="description" placeholder="Briefly describe the contents..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Select File (PDF, Image, Doc)</label>
+                <input type="file" id="fileInput">
+            </div>
+
+            <button onclick="handleUpload()">Upload Now</button>
+        </div>
+    </main>
+</div>
+
+<script>
+    async function handleUpload() {
+        const fileInput = document.getElementById('fileInput');
+        if (!fileInput.files[0]) {
+            alert("Please select a file to upload.");
+            return;
+        }
+
+        const formData = new FormData();
+        const userId = localStorage.getItem('userId');
+
+        if (!userId) {
+            alert("Session expired. Please log in again.");
+            window.location.href = 'login.html';
+            return;
+        }
+
+        formData.append('file', fileInput.files[0]);
+        formData.append('title', document.getElementById('title').value);
+        formData.append('description', document.getElementById('description').value);
+        formData.append('course_name', document.getElementById('course').value);
+        formData.append('semester', document.getElementById('sem').value);
+        formData.append('user_id', userId);
+
+        // Show loading state on button
+        const btn = document.querySelector('button');
+        const originalText = btn.innerText;
+        btn.innerText = "Uploading...";
+        btn.disabled = true;
+
+        try {
+            const res = await fetch('http://127.0.0.1:5000/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            
+            if(res.ok) {
+                alert("Success: " + data.message);
+                window.location.href = 'dashboard.html';
+            } else {
+                alert("Upload Failed: " + data.error);
+            }
+        } catch (err) {
+            alert("Server connection error.");
+        } finally {
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
+    }
+</script>
+
+</body>
+</html>

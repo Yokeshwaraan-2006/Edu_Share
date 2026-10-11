@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduShare | Student Leaderboard</title>
+    <style>
+        /* --- 1. THEME VARIABLES --- */
+        :root {
+            --primary: #4f46e5;
+            --bg-img: url('bg.jpg');
+            --glass-white: rgba(255, 255, 255, 0.85);
+            --glass-sidebar: rgba(79, 70, 229, 0.8);
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --border: rgba(255, 255, 255, 0.3);
+        }
+
+        /* --- 2. GLOBAL RESET & BG --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Tahoma, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            background-image: var(--bg-img);
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* --- 3. FADE-IN ANIMATION --- */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+        }
+
+        /* --- 4. SIDEBAR (BLUR EFFECT) --- */
+        .sidebar {
+            width: 240px;
+            background: var(--glass-sidebar);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(15px);
+            color: white;
+            padding: 25px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: white;
+            transition: 0.3s ease;
+        }
+
+        .sidebar a:hover,
+        .sidebar .active {
+            background: rgba(255, 255, 255, 0.2);
+            padding-left: 20px;
+        }
+
+        /* --- 5. MAIN CONTENT --- */
+        .main {
+            flex: 1;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeIn 0.8s ;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 35px;
+            color: white;
+            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        header h1 {
+            font-size: 36px;
+            margin-bottom: 8px;
+        }
+
+        /* --- 6. LEADERBOARD CARD --- */
+        .leaderboard-container {
+            background: var(--glass-white);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(15px);
+            width: 100%;
+            max-width: 900px;
+            padding: 35px;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border);
+            animation: fadeIn 1s ease-out;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 15px;
+            color: var(--text-light);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+        }
+
+        td {
+            padding: 20px 15px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            font-size: 15px;
+        }
+
+        /* --- 7. RANK CIRCLES --- */
+        .rank-badge {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-weight: 800;
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .gold {
+            background: #fef3c7;
+            color: #92400e;
+            border: 2px solid #fbbf24;
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
+        }
+
+        .silver {
+            background: #f8fafc;
+            color: #475569;
+            border: 2px solid #cbd5e1;
+        }
+
+        .bronze {
+            background: #fff7ed;
+            color: #9a3412;
+            border: 2px solid #fdba74;
+        }
+
+        .dl-text {
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar">
+        <div class="logo">EduShare</div>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="browse.html">Browse Resources</a>
+        <a href="upload.html">Upload</a>
+        <a href="leaderboard.html" class="active">Leaderboard</a>
+        <a href="profile.html">Profile</a>
+    </nav>
+
+    <main class="main">
+        <header>
+            <h1>🏆 Student Leaderboard</h1>
+            <p>Our top academic contributors.</p>
+        </header>
+
+        <div class="leaderboard-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Student</th>
+                        <th>Downloads</th>
+                        <th>Rating</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body">
+                    </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        async function loadLeaderboard() {
+            const body = document.getElementById('leaderboard-body');
+            try {
+                const res = await fetch("http://127.0.0.1:5000/get-leaderboard");
+                const data = await res.json();
+
+                if (!data || data.length === 0) {
+                    body.innerHTML = "<tr><td colspan='4' style='text-align:center; padding:40px;'>No students ranked yet.</td></tr>";
+                    return;
+                }
+
+                body.innerHTML = data.map((user, index) => {
+                    const pos = index + 1; // Recalculate rank locally based on filtered list
+                    const rankClass = pos === 1 ? 'gold' : pos === 2 ? 'silver' : pos === 3 ? 'bronze' : '';
+
+                    return `
+                        <tr>
+                            <td><div class="rank-badge ${rankClass}">${pos}</div></td>
+                            <td><strong style="font-size: 16px;">${user.user_name}</strong></td>
+                            <td class="dl-text">${user.total_downloads} <span style="font-weight:400; font-size:12px;"></span></td>
+                            <td style="color: #f59e0b; font-weight: bold;">★ ${parseFloat(user.average_rating || 0).toFixed(1)}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (err) {
+                body.innerHTML = "<tr><td colspan='4' style='text-align:center; color:red; padding:40px;'>Connection error.</td></tr>";
+            }
+        }
+        window.onload = loadLeaderboard;
+    </script>
+
+</body>
+</html>

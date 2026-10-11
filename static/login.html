@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <style>
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image: url('bg.jpg');   
+            background-size: cover;
+            background-position: center;
+            filter: blur(5px);
+            z-index: -1;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .card {
+            width: 400px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px black;
+            padding: 40px;
+            backdrop-filter: blur(5px);
+        }
+
+        h2 { 
+            text-align: center; 
+            color: black; 
+            text-shadow: 1px 1px 2px white; 
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;  
+            margin: 10px 0;
+            border-radius: 25px;
+            border: 1px solid white;
+            background: rgba(0, 0, 0, 0.5);
+            box-sizing: border-box;
+            color: white;
+        }
+
+        input::placeholder { 
+            color: #ddd; 
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(135deg, #5f6cff, #c77dff);
+            color: black;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover { 
+            opacity: 0.9; 
+        }
+
+        .link {
+            text-align: center;
+            margin-top: 15px;
+            color: black;
+        } 
+
+        .link a { 
+            color: #c77dff; 
+            text-decoration: none; 
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Login</h2>
+    <input id="email" type="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Password">
+    <button onclick="loginUser()">Login</button>
+    <div class="link">
+        No account? <a href="signup.html">Signup</a>
+    </div>
+</div>
+
+<script>
+async function loginUser() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    if(!email || !password) {
+        alert("Please enter email and password");
+        return;
+    }
+
+    try {
+        const res = await fetch("http://127.0.0.1:5000/login", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({email, password})
+        });
+
+        const data = await res.json();
+
+        if(res.ok) {
+            // 1. SAVE SESSION TO LOCAL STORAGE
+            localStorage.setItem('userId', data.user_id);
+            localStorage.setItem('userName', data.name);
+            localStorage.setItem('userRole', data.role);
+            localStorage.setItem('userEmail', email);
+
+            // 2. DEBUG LOG (Open F12 to see this)
+            console.log("Login Success! Role from DB is:", data.role);
+
+            alert("Welcome " + data.name + "!");
+
+            // 3. ROLE-BASED REDIRECT
+            // Matches your DB value 'teacher'
+            if (data.role === 'teacher') {
+                window.location.href = "faculty_dashboard.html";
+            } else {
+                window.location.href = "dashboard.html";
+            }
+            
+        } else {
+            alert("Login Failed: " + data.error);
+        }
+    } catch(err) {
+        console.error("Fetch Error:", err);
+        alert("Server error. Ensure app.py is running.");
+    }
+}
+</script>
+</body>
+</html>

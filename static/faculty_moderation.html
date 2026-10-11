@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduShare | Moderation Queue</title>
+    <style>
+        /* --- 1. VARIABLES --- */
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #eef2ff;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        /* --- 2. GLOBAL STYLES --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+
+        body {
+            display: flex;
+            background: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        /* --- 3. SIDEBAR --- */
+        .sidebar {
+            width: 280px;
+            background: var(--primary);
+            color: white;
+            padding: 30px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .sidebar h2 {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 40px;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 14px 18px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover, 
+        .sidebar a.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        /* --- 4. MAIN LAYOUT --- */
+        .main {
+            flex: 1;
+            padding: 40px;
+        }
+
+        header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        /* --- 5. TABLE CARD --- */
+        .table-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            padding: 20px;
+            background: #f8fafc;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 20px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        tr:hover td {
+            background: #fafafa;
+        }
+
+        /* --- 6. BADGES --- */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge-warn {
+            background: #fffbeb;
+            color: var(--warning);
+        }
+
+        .badge-success {
+            background: #ecfdf5;
+            color: var(--success);
+        }
+
+        /* --- 7. BUTTON GROUPS --- */
+        .btn-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 12px;
+            transition: 0.2s;
+        }
+
+        .btn-verify {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-verify:hover {
+            background: #059669;
+        }
+
+        .btn-feedback {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .btn-feedback:hover {
+            background: #e0e7ff;
+        }
+
+        .btn-delete {
+            background: #fef2f2;
+            color: var(--danger);
+        }
+
+        .btn-delete:hover {
+            background: #fee2e2;
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar">
+        <h2>EduShare</h2>
+        <a href="faculty_dashboard.html">📊 Dashboard</a>
+        <a href="faculty_moderation.html" class="active">🛡️ Moderation Queue</a>
+        <a href="browse.html">🔍 Repository</a>
+        <a href="leaderboard.html">🏆 Leaderboard</a>
+    </nav>
+
+    <main class="main">
+        <header style="margin-bottom: 30px;">
+            <h1>Content Moderation Queue</h1>
+            <p style="color: var(--text-muted);">Ensure quality standards by reviewing student uploads.</p>
+        </header>
+
+        <div class="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Asset Name</th>
+                        <th>Course Code</th>
+                        <th>Uploader</th>
+                        <th>Status</th>
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="mod-table">
+                    </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        const facultyId = localStorage.getItem('userId');
+
+        async function loadQueue() {
+            try {
+                const res = await fetch('http://127.0.0.1:5000/get-resources');
+                const data = await res.json();
+                const table = document.getElementById('mod-table');
+                table.innerHTML = "";
+
+                data.forEach(item => {
+                    table.innerHTML += `
+                        <tr>
+                            <td>
+                                <div style="font-weight: 700;">${item.title}</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">${item.file_type.toUpperCase()} File</div>
+                            </td>
+                            <td><span style="background: #f1f5f9; padding: 4px 8px; border-radius: 6px;">${item.course_name}</span></td>
+                            <td>${item.uploader_name}</td>
+                            <td>
+                                <span class="status-badge ${item.is_verified ? 'badge-success' : 'badge-warn'}">
+                                    ${item.is_verified ? 'Verified' : 'Pending'}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group" style="justify-content: flex-end;">
+                                    ${!item.is_verified ? `<button class="btn-small btn-verify" onclick="verifyRes(${item.resource_id})">Verify</button>` : ''}
+                                    <button class="btn-small btn-feedback" onclick="addFeedback(${item.resource_id})">Feedback</button>
+                                    <button class="btn-small btn-delete" onclick="deleteRes(${item.resource_id})">Reject</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (err) {
+                console.error("Queue load error:", err);
+            }
+        }
+
+        async function verifyRes(id) {
+            await fetch(`http://127.0.0.1:5000/verify-resource/${id}`, { method: 'POST' });
+            loadQueue();
+        }
+
+        async function deleteRes(id) {
+            if(confirm("Reject and delete this resource?")) {
+                await fetch(`http://127.0.0.1:5000/delete-resource/${id}`, { method: 'DELETE' });
+                loadQueue();
+            }
+        }
+
+        async function addFeedback(id) {
+            const msg = prompt("Enter corrections for the student:");
+            if(!msg) return;
+            const isPublic = confirm("Make this feedback PUBLIC for all students?");
+            
+            await fetch('http://127.0.0.1:5000/add-comment', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    resource_id: id,
+                    faculty_id: facultyId,
+                    text: msg,
+                    type: isPublic ? 'public' : 'private'
+                })
+            });
+            alert("Feedback sent!");
+        }
+
+        window.onload = loadQueue;
+    </script>
+</body>
+</html>

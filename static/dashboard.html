@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduShare Dashboard</title>
+
+<style>
+    /* --- THEME VARIABLES --- */
+    :root {
+        --primary: #4f46e5;
+        --bg: #f5f7fb;
+        --card-bg: #ffffff;
+        --text: #1f2937;
+        --text-light: #6b7280;
+        --border: #e5e7eb;
+    }
+
+    /* Dark Theme Styles */
+    body.dark-theme {
+        --bg: #0f172a;
+        --card-bg: #1e293b;
+        --text: #f8fafc;
+        --text-light: #94a3b8;
+        --border: #334155;
+    }
+
+    *{
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
+        font-family: "Segoe UI", sans-serif;
+    }
+
+    body{
+        background: var(--bg);
+        color: var(--text);
+        transition: background 0.3s, color 0.3s;
+    }
+
+    /* Layout */
+    .dashboard{
+        display:flex;
+        min-height:100vh;
+    }
+
+    /* Sidebar */
+    .sidebar{
+        width:240px;
+        background: var(--primary);
+        color:white;
+        padding:20px;
+        flex-shrink: 0;
+    }
+
+    .logo{
+        font-size:22px;
+        font-weight:bold;
+        margin-bottom:30px;
+    }
+
+    .sidebar a{
+        display:block;
+        padding:12px;
+        margin-bottom:8px;
+        border-radius:8px;
+        cursor:pointer;
+        text-decoration: none;
+        color: white;
+    }
+
+    .sidebar a:hover,
+    .sidebar .active{
+        background:rgba(255,255,255,0.2);
+    }
+
+    /* Main Content */
+    .main{
+        flex:1;
+        padding:30px;
+    }
+
+    header h1{
+        margin-bottom:6px;
+    }
+
+    header p{
+        color: var(--text-light);
+    }
+
+    /* Stats Grid */
+    .stats{
+        display:grid;
+        grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+        gap:20px;
+        margin:25px 0;
+    }
+
+    .card{
+        background: var(--card-bg);
+        padding:20px;
+        border-radius:12px;
+        border: 1px solid var(--border);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+
+    /* --- HOVER EFFECTS FOR STAT CARDS --- */
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    cursor: default;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    border-color: var(--primary);
+}
+
+/* --- HOVER EFFECTS FOR RESOURCE CARDS --- */
+.resource-card {
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.resource-card:hover {
+    background-color: rgba(79, 70, 229, 0.02);
+    transform: scale(1.01);
+}
+
+/* --- HOVER EFFECTS FOR SIDEBAR LINKS --- */
+.sidebar a {
+    transition: padding-left 0.3s ease, background 0.2s ease;
+}
+
+.sidebar a:hover {
+    padding-left: 20px;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* --- BUTTON INTERACTION --- */
+button {
+    transition: opacity 0.2s ease, transform 0.1s ease;
+}
+
+button:active {
+    transform: scale(0.96);
+}
+    .card h3{
+        font-size:14px;
+        color: var(--text-light);
+    }
+
+    .card h2{
+        margin:10px 0;
+    }
+
+    .green{
+        color:#16a34a;
+        font-size:13px;
+        font-weight: bold;
+    }
+
+    /* Content Section */
+    .content{
+        display:grid;
+        grid-template-columns: 2fr 1fr;
+        gap:20px;
+    }
+
+    .resources,
+    .contributors{
+        background: var(--card-bg);
+        padding:20px;
+        border-radius:12px;
+        border: 1px solid var(--border);
+    }
+
+    .resource-card{
+        border:1px solid var(--border);
+        padding:15px;
+        border-radius:10px;
+        margin-top:15px;
+    }
+
+    .resource-card p{
+        font-size:14px;
+        color: var(--text-light);
+        margin:8px 0;
+    }
+
+    button{
+        background: var(--primary);
+        color:white;
+        border:none;
+        padding:8px 14px;
+        border-radius:8px;
+        cursor:pointer;
+        font-weight: bold;
+    }
+
+    button:hover{
+        opacity: 0.9;
+    }
+
+    /* Contributors */
+    .contributors ul{
+        list-style:none;
+        margin-top:15px;
+    }
+
+    .contributors li{
+        display:flex;
+        justify-content:space-between;
+        padding:8px 0;
+        border-bottom:1px solid var(--border);
+    }
+
+    /* Responsive */
+    @media(max-width:900px){
+        .content{ grid-template-columns:1fr; }
+        .sidebar{ width: 70px; }
+        .sidebar .logo, .sidebar a span { display: none; }
+    }
+</style>
+
+<script>
+    // Immediate Theme Check
+    (function() {
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
+    })();
+</script>
+
+</head>
+<body>
+
+<div class="dashboard">
+
+    <div class="sidebar">
+        <nav>
+        <div class="logo">EduShare</div>
+        <a href="dashboard.html" class="active">Dashboard</a>
+        <a href="browse.html">Browse Resources</a>
+        <a href="upload.html">Upload</a>
+        <a href="leaderboard.html">Leaderboard</a>
+        <a href="profile.html">Profile</a>
+        </nav>
+    </div>
+    
+
+    <div class="main">
+        <header>
+            <h1 id="welcome-text">Welcome back, Student!</h1>
+            <p>Here's an overview of your activity and recent resources</p>
+        </header>
+
+        <div class="stats">
+            <div class="card">
+                <h3>Total Resources</h3>
+                <h2 id="total-count">0</h2>
+                <span class="green">+12% from last month</span>
+            </div>
+            <div class="card">
+                <h3>Downloads</h3>
+                <h2 id="personal-dl">10</h2>
+                <span class="green">+3% from last month</span>
+            </div>
+            <div class="card">
+                <h3>Your Uploads</h3>
+                <h2 id="my-uploads">0</h2>
+            </div>
+            <div class="card">
+                <h3>Avg. Rating</h3>
+                <h2>4.7</h2>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="resources">
+                <h3>Recent Resources</h3>
+                <div id="resource-list">
+                    <p style="margin-top: 10px; color: var(--text-light);">Loading resources...</p>
+                </div>
+            </div>
+
+            <div class="contributors">
+                <h3>🏆 Top Contributors</h3>
+                <ul>
+                    <p style="margin-top: 10px; color: var(--text-light);">Loading ranks...</p>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Personalize Greeting
+    const userName = localStorage.getItem('userName') || "Student";
+    const userId = localStorage.getItem('userId');
+    document.getElementById('welcome-text').innerText = `Welcome back, ${userName}!`;
+
+    async function loadDashboard() {
+        try {
+            // --- 1. Load Recent Resources & Stats ---
+            const res = await fetch("http://127.0.0.1:5000/get-resources");
+            const data = await res.json();
+            
+            document.getElementById('total-count').innerText = data.length;
+            const myCount = data.filter(item => item.uploaded_by == userId).length;
+            document.getElementById('my-uploads').innerText = myCount;
+
+            const container = document.getElementById('resource-list');
+            if(data.length > 0) {
+                container.innerHTML = "";
+                data.slice(0, 2).forEach(file => {
+                    container.innerHTML += `
+                        <div class="resource-card">
+                            <h4>${file.title}</h4>
+                            <p>${file.course_name} • Sem ${file.semester} • By ${file.uploader_name}</p>
+                            <button onclick="handleDownload(${file.resource_id}, '${file.file_url}')">Download</button>
+                        </div>
+                    `;
+                });
+            }
+
+            // --- 2. Load Top Contributors (Dynamic) ---
+            const leaderRes = await fetch("http://127.0.0.1:5000/get-leaderboard");
+            const leaders = await leaderRes.json();
+            const leaderList = document.querySelector('.contributors ul');
+            
+            if(leaders.length > 0) {
+                leaderList.innerHTML = ""; 
+                leaders.slice(0, 5).forEach(user => {
+                    leaderList.innerHTML += `
+                        <li>
+                            ${user.user_name} 
+                            <span style="font-weight: bold; color: var(--primary);">
+                                ${user.total_downloads}
+                            </span>
+                        </li>
+                    `;
+                });
+            } else {
+                leaderList.innerHTML = "<li>No contributors yet</li>";
+            }
+
+        } catch (err) {
+            console.error("Dashboard error:", err);
+        }
+    } 
+
+    async function handleDownload(resId, url) {
+    const userId = localStorage.getItem('userId') || 1; // Get the logged-in user's ID
+    
+    await fetch(`http://127.0.0.1:5000/track-download/${resId}`, { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId }) 
+    });
+    
+    window.open(`http://127.0.0.1:5000/${url}`);
+    loadDashboard(); // This will now show the updated VIEW data
+}
+    window.onload = loadDashboard;
+</script>
+
+</body>
+</html>

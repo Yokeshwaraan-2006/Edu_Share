@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduShare | Browse Resources</title>
+    <style>
+        /* --- 1. THEME VARIABLES --- */
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f5f7fb;
+            --card-bg: #ffffff;
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --border: #e5e7eb;
+            --badge-bg: #eff6ff;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        body.dark-theme {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --text-light: #94a3b8;
+            --border: #334155;
+            --badge-bg: rgba(79, 70, 229, 0.15);
+        }
+
+        /* --- 2. GLOBAL RESET --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            transition: background 0.3s, color 0.3s;
+            min-height: 100vh;
+        }
+
+        /* --- 3. LAYOUT --- */
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* --- 4. SIDEBAR --- */
+        .sidebar {
+            width: 240px;
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+            transition: padding-left 0.3s ease, background 0.2s ease;
+        }
+
+        .sidebar a:hover,
+        .sidebar .active {
+            background: rgba(255, 255, 255, 0.2);
+            padding-left: 20px;
+        }
+
+        /* --- 5. MAIN CONTENT --- */
+        .main {
+            flex: 1;
+            padding: 30px;
+        }
+
+        header h1 {
+            font-size: 28px;
+            margin-bottom: 6px;
+        }
+
+        header p {
+            color: var(--text-light);
+            margin-bottom: 25px;
+        }
+
+        /* --- 6. FILTER SECTION --- */
+        .filter-section {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            gap: 15px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .filter-section input {
+            flex: 3;
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--bg);
+            color: var(--text);
+            outline: none;
+        }
+
+        .filter-section select {
+            flex: 1;
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--bg);
+            color: var(--text);
+            cursor: pointer;
+            outline: none;
+        }
+
+        /* --- 7. RESOURCE GRID --- */
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .resource-card {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            position: relative;
+        }
+
+        .resource-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary);
+        }
+
+        .file-badge {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--primary);
+            background: var(--badge-bg);
+            padding: 5px 10px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            width: fit-content;
+        }
+
+        .resource-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .resource-info {
+            color: var(--text-light);
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .uploader-info {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* --- 8. RATING & FEEDBACK --- */
+        .rating-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 8px;
+            background: var(--bg);
+            border-radius: 10px;
+            width: fit-content;
+        }
+
+        .star {
+            font-size: 18px;
+            cursor: pointer;
+            color: #cbd5e1;
+            transition: 0.2s;
+        }
+
+        .star.active {
+            color: #f59e0b;
+        }
+
+        .avg-text {
+            font-weight: 800;
+            color: var(--text);
+            font-size: 12px;
+        }
+
+        .feedback-drawer {
+            display: none;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: var(--bg);
+            border-radius: 8px;
+            font-size: 13px;
+            border: 1px solid var(--border);
+        }
+
+        /* --- 9. BUTTONS --- */
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: auto;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        button:active {
+            transform: scale(0.96);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+            flex: 1;
+        }
+
+        .btn-primary {
+            flex: 2;
+        }
+
+        /* Faculty Controls */
+        .faculty-controls {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-fac {
+            font-size: 11px;
+            flex: 1;
+        }
+
+        .bg-green { background: var(--success); }
+        .bg-red { background: var(--danger); }
+    </style>
+</head>
+<body>
+
+<div class="dashboard">
+    <nav class="sidebar">
+        <div class="logo">EduShare</div>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="browse.html" class="active">Browse Resources</a>
+        <a href="upload.html">Upload</a>
+        <a href="leaderboard.html">Leaderboard</a>
+        <a href="profile.html">Profile</a>
+    </nav>
+
+    <main class="main">
+        <header>
+            <h1 id="welcome-text">Resource Hub</h1>
+            <p>Find, rate, and learn from top notes shared by your peers.</p>
+        </header>
+
+        <div class="filter-section">
+            <input type="text" id="searchInput" placeholder="Search by topic, course..." oninput="debounce(loadResources)">
+            <select id="semFilter" onchange="loadResources()">
+                <option value="">All Semesters</option>
+                <option value="1">Semester 1</option>
+                <option value="2">Semester 2</option>
+                <option value="3">Semester 3</option>
+                <option value="4">Semester 4</option>
+                <option value="5">Semester 5</option>
+                <option value="6">Semester 6</option>
+                <option value="7">Semester 7</option>
+                <option value="8">Semester 8</option>
+            </select>
+        </div>
+
+        <div id="resource-grid" class="resource-grid">
+            </div>
+    </main>
+</div>
+
+<script>
+    const userRole = localStorage.getItem('userRole') || 'student';
+    const currentUserId = localStorage.getItem('userId');
+
+    // Theme Check
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-theme');
+    }
+
+    let timeout = null;
+    function debounce(func) {
+        clearTimeout(timeout);
+        timeout = setTimeout(func, 400);
+    }
+
+    async function loadResources() {
+        const search = document.getElementById('searchInput').value;
+        const sem = document.getElementById('semFilter').value;
+        const container = document.getElementById("resource-grid");
+
+        try {
+            const res = await fetch(`http://127.0.0.1:5000/get-resources?search=${encodeURIComponent(search)}&semester=${sem}`);
+            const resources = await res.json();
+
+            if (resources.length === 0) {
+                container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; padding: 50px;">No resources found.</p>`;
+                return;
+            }
+
+            container.innerHTML = resources.map((file) => {
+                const avg = parseFloat(file.average_rating || 0).toFixed(1);
+                const starCount = Math.round(file.average_rating || 0);
+
+                return `
+                <div class="resource-card">
+                    <span class="file-badge">${file.file_type || 'PDF'}</span>
+                    <h3 class="resource-title">
+                        ${file.title} ${file.is_verified ? '✅' : ''}
+                    </h3>
+                    <p class="resource-info"><b>${file.course_name}</b> • Sem ${file.semester}</p>
+                    
+                    <div class="uploader-info">
+                        👤 <span>Uploaded by <b>${file.uploader_name}</b></span>
+                    </div>
+
+                    <div class="rating-box">
+                        <div class="stars">
+                            ${[1, 2, 3, 4, 5].map(i => `<span class="star ${i <= starCount ? 'active' : ''}" onclick="submitRating(${file.resource_id}, ${i})">★</span>`).join('')}
+                        </div>
+                        <span class="avg-text">${avg}</span>
+                    </div>
+
+                    <div id="feedback-area-${file.resource_id}" class="feedback-drawer"></div>
+
+                    <div class="card-actions">
+                        <button class="btn btn-outline" onclick="toggleFeedback(${file.resource_id})">Feedback</button>
+                        <button class="btn btn-primary" onclick="downloadResource(${file.resource_id}, '${file.file_url}')">Download</button>
+                    </div>
+
+                    ${userRole === 'faculty' ? `
+                    <div class="faculty-controls">
+                        <button class="btn-fac bg-green" onclick="verifyRes(${file.resource_id})">Verify</button>
+                        <button class="btn-fac bg-red" onclick="deleteRes(${file.resource_id})">Delete</button>
+                    </div>` : ''}
+                </div>`;
+            }).join('');
+        } catch (e) {
+            container.innerHTML = `<p style="color:red">Error connecting to server.</p>`;
+        }
+    }
+
+    async function toggleFeedback(resId) {
+        const div = document.getElementById(`feedback-area-${resId}`);
+        if (div.style.display === 'block') { div.style.display = 'none'; return; }
+
+        const res = await fetch(`http://127.0.0.1:5000/get-comments/${resId}?user_id=${currentUserId}`);
+        const comments = await res.json();
+
+        if (!comments || comments.length === 0) {
+            div.innerHTML = `<div class="no-feedback-msg">No faculty feedback yet.</div>`;
+        } else {
+            div.innerHTML = comments.map(c => `
+                <div style="margin-bottom:8px; border-bottom:1px solid var(--border); padding-bottom:5px;">
+                    <b style="color:var(--primary)">${c.faculty_name}:</b><br>
+                    ${c.comment_text}
+                </div>
+            `).join('');
+        }
+        div.style.display = 'block';
+    }
+
+    async function submitRating(resId, rating) {
+        if (!currentUserId) return alert("Login required");
+        await fetch('http://127.0.0.1:5000/rate-resource', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: currentUserId, resource_id: resId, rating: rating })
+        });
+        loadResources();
+    }
+
+    async function downloadResource(resourceId, fileUrl) {
+    try {
+        // 1. Tell the server to increment the download count
+        await fetch(`http://127.0.0.1:5000/track-download/${resourceId}`, {
+            method: 'POST'
+        });
+        
+        // 2. Actually open/download the file
+        window.open(`http://127.0.0.1:5000/${fileUrl}`);
+    } catch (err) {
+        console.error("Download tracking failed", err);
+        // Fallback: still open the file even if tracking fails
+        window.open(`http://127.0.0.1:5000/${fileUrl}`);
+    }
+}
+
+    window.onload = loadResources;
+</script>
+</body>
+</html>
